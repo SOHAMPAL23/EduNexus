@@ -344,34 +344,10 @@ PORT=5001
 
 - [ ] Course reviews and ratings
 - [ ] Video progress tracking
-- [ ] Email notifications
-- [ ] Certificate generation
 - [ ] Payment integration
 - [ ] Live video classes
 - [ ] Discussion forums
-- [ ] Mobile app
-- [ ] Analytics dashboard
-- [ ] Quiz system
 
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
 
 ## 🙏 Acknowledgments
 
@@ -380,7 +356,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Socket.IO for real-time features
 - Tailwind CSS for styling
 - React team for amazing library
-
-## 📞 Support
 
 For support, email your.email@example.com or create an issue in the repository.
