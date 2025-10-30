@@ -3,9 +3,15 @@ const mongoose = require('mongoose');
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      connectTimeoutMS: 30000,  // allow longer initial connection
-      socketTimeoutMS: 45000,
-      tls: true,                // explicitly enable TLS
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      connectTimeoutMS: 10000,    // reduce connection timeout
+      socketTimeoutMS: 30000,     // reduce socket timeout
+      serverSelectionTimeoutMS: 10000, // reduce server selection timeout
+      heartbeatFrequencyMS: 1000,     // increase heartbeat frequency
+      maxPoolSize: 10,               // connection pool size
+      tls: false,                    // disable TLS for local connection
+      family: 4                      // use IPv4
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
@@ -22,6 +28,8 @@ mongoose.connection.on('connected', () => {
 
 mongoose.connection.on('error', (err) => {
   console.error('❌ Mongoose connection error:', err);
+  console.error('Connection URI:', process.env.MONGO_URI?.replace(/\/\/[^:]+:[^@]+@/, '//<credentials>@'));
+  console.error('Full error:', err.stack);
 });
 
 mongoose.connection.on('disconnected', () => {

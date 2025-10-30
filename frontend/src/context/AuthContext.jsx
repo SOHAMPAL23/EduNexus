@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext, useRef } from 'react';
 import api from '../services/api';
 
 export const AuthContext = createContext();
@@ -6,15 +6,66 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const logoutTimerRef = useRef(null);
+
+  const parseJwt = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
+    }
+  };
+
+  const scheduleAutoLogout = (token) => {
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = null;
+    }
+    const payload = parseJwt(token);
+    if (!payload?.exp) return;
+    const msUntilExpiry = payload.exp * 1000 - Date.now();
+    if (msUntilExpiry <= 0) {
+      logout();
+      return;
+    }
+    logoutTimerRef.current = setTimeout(() => {
+      logout();
+    }, msUntilExpiry);
+  };
 
   useEffect(() => {
     checkAuth();
+    // Sync logout across tabs
+    const onStorage = (e) => {
+      if (e.key === 'token' && !e.newValue) {
+        setUser(null);
+        delete api.defaults.headers.common['Authorization'];
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+    };
   }, []);
 
   const checkAuth = async () => {
     const token = localStorage.getItem('token');
     if (token) {
+      const payload = parseJwt(token);
+      if (!payload || (payload.exp && payload.exp * 1000 <= Date.now())) {
+        localStorage.removeItem('token');
+        delete api.defaults.headers.common['Authorization'];
+        setLoading(false);
+        return;
+      }
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      scheduleAutoLogout(token);
       await fetchUser();
     } else {
       setLoading(false);
@@ -41,6 +92,7 @@ export const AuthProvider = ({ children }) => {
     
     localStorage.setItem('token', token);
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    scheduleAutoLogout(token);
     setUser(user);
     
     return { success: true, user };
@@ -60,6 +112,7 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem('token', token);
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      scheduleAutoLogout(token);
       setUser(user);
       
       return res.data;
@@ -73,6 +126,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = null;
+    }
   };
 
   const updateUser = (updatedUser) => {

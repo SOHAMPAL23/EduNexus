@@ -2,13 +2,13 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white">
+    <footer className="bg-white bg-opacity-80 backdrop-blur-lg border-t-4 border-gradient-to-r from-blue-300 via-purple-300 to-pink-300 text-gray-900 transition-all duration-500 animate-fadein">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* About */}
           <div>
-            <h3 className="text-xl font-bold mb-4">EduNexus</h3>
-            <p className="text-gray-400 text-sm">
+            <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-pink-500 to-purple-700 bg-clip-text text-transparent animate-gradientMove">EduNexus</h3>
+            <p className="text-gray-500 text-sm">
               Your comprehensive learning management platform for online education.
             </p>
           </div>
@@ -17,10 +17,10 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/" className="text-gray-400 hover:text-white">Home</Link></li>
-              <li><Link to="/courses" className="text-gray-400 hover:text-white">Courses</Link></li>
-              <li><Link to="/about" className="text-gray-400 hover:text-white">About</Link></li>
-              <li><Link to="/contact" className="text-gray-400 hover:text-white">Contact</Link></li>
+              <li><Link to="/" className="text-blue-400 hover:text-pink-500 transition-colors duration-300">Home</Link></li>
+              <li><Link to="/courses" className="text-blue-400 hover:text-pink-500 transition-colors duration-300">Courses</Link></li>
+              <li><Link to="/about" className="text-blue-400 hover:text-pink-500 transition-colors duration-300">About</Link></li>
+              <li><Link to="/contact" className="text-blue-400 hover:text-pink-500 transition-colors duration-300">Contact</Link></li>
             </ul>
           </div>
 

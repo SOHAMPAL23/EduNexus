@@ -56,6 +56,11 @@ const ChatRoom = () => {
     const newSocket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 500,
+      reconnectionDelayMax: 5000,
+      timeout: 10000,
     });
 
     newSocket.on('connect', () => {

@@ -1,1 +1,83 @@
-@import "tailwindcss";
+/* frontend/src/index.css */
+
+/* 1) Import Google fonts (Inter + Poppins) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@500;600&display=swap');
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #fbfbfc;
+  --card: rgba(255,255,255,0.7);
+  --glass-border: rgba(13,17,23,0.06);
+  --accent-glow: 0 10px 30px rgba(90,127,255,0.12);
+}
+
+.dark {
+  --bg: #0b0f14;
+  --card: rgba(15,20,30,0.6);
+  --glass-border: rgba(255,255,255,0.04);
+  --accent-glow: 0 10px 30px rgba(90,127,255,0.12);
+  color-scheme: dark;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Premium primary button */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white font-medium shadow-soft-1 transition-common transform;
+  background-image: linear-gradient(90deg,#7cc8ff 0%,#b093ff 100%);
+}
+.btn-primary:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--accent-glow);
+}
+
+/* Glass card */
+.card-glass {
+  @apply rounded-xl p-6;
+  background-color: rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 30px rgba(15,23,42,0.12);
+  transition: all 0.3s ease;
+}
+
+/* Inputs */
+.input {
+  @apply w-full rounded-lg px-4 py-3 bg-white/80 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-300 transition-common;
+}
+.dark .input {
+  @apply bg-neutral-900/60 border-neutral-700 text-neutral-100;
+}
+
+/* Float animation (subtle) */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+.float-slow { animation: float 6s ease-in-out infinite; }
+
+/* Accessibility: respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .float-slow { animation: none; }
+  .btn-primary, .card-glass { transition: none; }
+}
+
+/* Custom utilities that reference theme values to ensure @apply works */
+@layer utilities {
+  .shadow-soft-1 { box-shadow: 0 6px 20px rgba(14,18,26,0.06); }
+  .shadow-soft-2 { box-shadow: 0 10px 30px rgba(14,18,26,0.08); }
+  .shadow-glass { box-shadow: 0 8px 30px rgba(15,23,42,0.12); }
+
+  .transition-common { transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform; transition-duration: 300ms; transition-timing-function: ease; }
+}

@@ -1,182 +1,90 @@
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
 import { BookOpen, LogOut, Menu, X } from 'lucide-react';
-import { useState } from 'react';
 
-const Navbar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+export default function Navbar() {
+  const auth = typeof useAuth === 'function' ? useAuth() : { user: null, logout: () => {} };
+  const user = auth?.user || null;
+  const logout = auth?.logout || (() => {});
+  const navigate = typeof useNavigate === 'function' ? useNavigate() : () => {};
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  function handleLogout() {
+    try { logout(); } catch (e) {}
+    try { navigate('/login'); } catch (e) {}
+  }
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleGetStarted = () => {
+    if (user) {
+      // If user is logged in, redirect to appropriate dashboard
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (user.role === 'instructor') {
+        navigate('/instructor/dashboard');
+      } else {
+        navigate('/');
+      }
+    } else {
+      // If user is not logged in, redirect to login page
+      navigate('/login');
+    }
   };
 
   return (
-    <nav className="bg-blue-600 shadow-lg">
+    <nav className="w-full bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2 text-white">
-              <BookOpen size={32} />
-              <span className="text-xl font-bold">EduNexus</span>
-            </Link>
+        <div className="flex justify-between items-center h-16">
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-lg bg-accent-bluePurple flex items-center justify-center text-white font-bold shadow-soft-1">
+              EN
+            </div>
+            <div className="hidden sm:block">
+              <div className="text-lg font-semibold">EduNexus</div>
+              <div className="text-xs text-neutral-500">Modern learning platform</div>
+            </div>
+          </Link>
+
+          <div className="hidden md:flex items-center gap-4">
+            <Link className="text-neutral-700 hover:text-primary-700 transition-common" to="/courses">Courses</Link>
+            <Link className="text-neutral-700 hover:text-primary-700 transition-common" to="/instructors">Instructors</Link>
+            <Link className="text-neutral-700 hover:text-primary-700 transition-common" to="/pricing">Pricing</Link>
+            <button className="btn-primary" onClick={handleGetStarted}>Get Started</button>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            {user ? (
-              <>
-                <Link
-                  to="/"
-                  className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Courses
-                </Link>
-
-                {user.role === 'admin' && (
-                  <Link
-                    to="/admin/dashboard"
-                    className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Admin Dashboard
-                  </Link>
-                )}
-
-                {user.role === 'instructor' && (
-                  <Link
-                    to="/instructor/dashboard"
-                    className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Instructor Dashboard
-                  </Link>
-                )}
-
-                <div className="flex items-center space-x-3">
-                  <span className="text-white text-sm">
-                    {user.name}
-                    <span className="ml-2 px-2 py-1 bg-blue-800 rounded-full text-xs">
-                      {user.role}
-                    </span>
-                  </span>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center space-x-1 text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    <LogOut size={18} />
-                    <span>Logout</span>
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-white text-blue-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium"
-                >
-                  Register
-                </Link>
-              </>
-            )}
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={toggleMenu}
-              className="text-white hover:bg-blue-700 p-2 rounded-md"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <div className="md:hidden">
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-lg bg-neutral-100/60 dark:bg-neutral-900/40">
+                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile */}
       {isMenuOpen && (
-        <div className="md:hidden bg-blue-700">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+        <div className="md:hidden px-4 pb-4">
+          <div className="space-y-2">
+            <Link to="/courses" className="block py-2">Courses</Link>
+            <Link to="/instructors" className="block py-2">Instructors</Link>
+            <Link to="/pricing" className="block py-2">Pricing</Link>
             {user ? (
               <>
-                <Link
-                  to="/"
-                  className="block text-white hover:bg-blue-800 px-3 py-2 rounded-md text-base font-medium"
-                  onClick={toggleMenu}
-                >
-                  Courses
-                </Link>
-
-                {user.role === 'admin' && (
-                  <Link
-                    to="/admin/dashboard"
-                    className="block text-white hover:bg-blue-800 px-3 py-2 rounded-md text-base font-medium"
-                    onClick={toggleMenu}
-                  >
-                    Admin Dashboard
-                  </Link>
-                )}
-
-                {user.role === 'instructor' && (
-                  <Link
-                    to="/instructor/dashboard"
-                    className="block text-white hover:bg-blue-800 px-3 py-2 rounded-md text-base font-medium"
-                    onClick={toggleMenu}
-                  >
-                    Instructor Dashboard
-                  </Link>
-                )}
-
-                <div className="px-3 py-2 text-white text-sm">
-                  {user.name}
-                  <span className="ml-2 px-2 py-1 bg-blue-900 rounded-full text-xs">
-                    {user.role}
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    toggleMenu();
-                  }}
-                  className="w-full text-left text-white hover:bg-blue-800 px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Logout
-                </button>
+                <div className="py-2">{user.name}</div>
+                <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="w-full text-left py-2">Logout</button>
               </>
             ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="block text-white hover:bg-blue-800 px-3 py-2 rounded-md text-base font-medium"
-                  onClick={toggleMenu}
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="block text-white hover:bg-blue-800 px-3 py-2 rounded-md text-base font-medium"
-                  onClick={toggleMenu}
-                >
-                  Register
-                </Link>
-              </>
+              <div className="flex gap-2">
+                <Link to="/login" className="py-2">Login</Link>
+                <Link to="/register" className="py-2">Register</Link>
+              </div>
             )}
           </div>
         </div>
       )}
     </nav>
   );
-};
-
-export default Navbar;
+}

@@ -13,7 +13,17 @@ module.exports = (io) => {
       }
       
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id).select('-password');
+      
+      // Add timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 5000);
+      });
+      
+      // Race between the user query and timeout
+      const user = await Promise.race([
+        User.findById(decoded.id).select('-password'),
+        timeoutPromise
+      ]);
       
       if (!user) {
         return next(new Error('User not found'));
@@ -23,7 +33,11 @@ module.exports = (io) => {
       next();
     } catch (error) {
       console.error('Socket auth error:', error);
-      next(new Error('Authentication error'));
+      if (error.message === 'Database query timeout') {
+        next(new Error('Connection timeout - please try again'));
+      } else {
+        next(new Error('Authentication error'));
+      }
     }
   });
 
